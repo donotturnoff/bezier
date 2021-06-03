@@ -1,4 +1,4 @@
-var ctx, w, h, points, dt, selected;
+var ctx, w, h, points, segments, selected, curve;
 
 function fact(n) {
     var f = 1;
@@ -31,14 +31,16 @@ function draw() {
     ctx.clearRect(0, 0, w, h);
     ctx.lineWidth = 4;
     var prev = s(0);
-    for (var t = 0; t <= 1+dt; t += dt) {
-        var point = s(t);
-        ctx.strokeStyle = "rgb(" + point.r + ", " + point.g + ", " + point.b + ")";
+    for (var i = 0; i <= segments; i++) {
+        var t = i/segments;
+        var p = s(t);
+        curve[i] = p;
+        ctx.strokeStyle = "rgb(" + p.r + ", " + p.g + ", " + p.b + ")";
         ctx.beginPath();
         ctx.moveTo(prev.x, prev.y);
-        ctx.lineTo(point.x, point.y);
+        ctx.lineTo(p.x, p.y);
         ctx.stroke();
-        prev = point;
+        prev = p;
     }
     ctx.fillStyle = "#666666";
     for (var i = 0; i < points.length; i++) {
@@ -92,9 +94,34 @@ function mouseDown(e) {
         var d = dx*dx + dy*dy;
         if (d <= 100) {
             selected = p;
-            break;
+            return;
         }
     }
+
+    if (!e.shiftKey) {
+        var closest = null;
+        var min = Infinity;
+        var pos = 0;
+        for (var i = 0; i <= segments; i++) {
+            var c = curve[i];
+            var dx = x - c.x;
+            var dy = y - c.y;
+            var d = dx*dx + dy*dy;
+            if (d < min) {
+                min = d;
+                closest = c;
+                pos = i/segments*points.length;
+            }
+        }
+
+        if (closest !== null) {
+            selected = {x: x, y: y, r: 102, g: 102, b: 102};
+            points.splice(pos, 0, selected);
+        }
+    }
+
+    draw();
+
 }
 
 function mouseUp(e) {
@@ -138,10 +165,11 @@ function init() {
     ctx.lineWidth = 4;
     ctx.lineCap = "round";
 
-    points = [{x: 100, y: 100, r: 255, g: 0, b: 0}, {x: 200, y: 100, r: 128, g: 255, b: 0}, {x: 300, y: 300, r: 0, g: 255, b: 128}, {x: 100, y: 400, r: 0, g: 0, b: 255}];
-    dt = 0.02;
+    points = [{x: 100, y: 100, r: 255, g: 0, b: 0}, {x: 200, y: 100, r: 128, g: 255, b: 0}];
     shiftPressed = false;
     selected = null;
+    curve = [];
+    segments = 50;
 
     draw();
 }
