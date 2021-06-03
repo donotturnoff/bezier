@@ -1,4 +1,4 @@
-var ctx, w, h, points, dt, down, selected;
+var ctx, w, h, points, dt, selected;
 
 function fact(n) {
     var f = 1;
@@ -28,6 +28,7 @@ function s(t) {
 }
 
 function draw() {
+    ctx.clearRect(0, 0, w, h);
     ctx.lineWidth = 4;
     var prev = s(0);
     for (var t = 0; t <= 1+dt; t += dt) {
@@ -53,7 +54,6 @@ function mouseMove(e) {
     var x = e.clientX - rect.left; //x position within the element.
     var y = e.clientY - rect.top;  //y position within the element.
 
-    ctx.clearRect(0, 0, w, h);
     document.body.style.cursor = "default";
 
     draw();
@@ -74,7 +74,7 @@ function mouseMove(e) {
         }
     }
 
-    if (down) {
+    if (selected !== null) {
         selected.x = x;
         selected.y = y;
     }
@@ -84,8 +84,6 @@ function mouseDown(e) {
     var rect = e.target.getBoundingClientRect();
     var x = e.clientX - rect.left; //x position within the element.
     var y = e.clientY - rect.top;  //y position within the element.
-
-    down = true;
 
     for (var i = 0; i < points.length; i++) {
         var p = points[i];
@@ -100,11 +98,31 @@ function mouseDown(e) {
 }
 
 function mouseUp(e) {
-    down = false;
+    selected = null;
 }
 
 function click(e) {
+    var rect = e.target.getBoundingClientRect();
+    var x = e.clientX - rect.left; //x position within the element.
+    var y = e.clientY - rect.top;  //y position within the element.
 
+    for (var i = 0; i < points.length; i++) {
+        var p = points[i];
+        var dx = x - p.x;
+        var dy = y - p.y;
+        var d = dx*dx + dy*dy;
+        if (d <= 100) {
+            if (e.shiftKey) {
+                // Remove point from array
+                const index = points.indexOf(p);
+                if (index > -1) {
+                    points.splice(index, 1);
+                    draw();
+                }
+            }
+            break;
+        }
+    }
 }
 
 function init() {
@@ -122,7 +140,8 @@ function init() {
 
     points = [{x: 100, y: 100, r: 255, g: 0, b: 0}, {x: 200, y: 100, r: 128, g: 255, b: 0}, {x: 300, y: 300, r: 0, g: 255, b: 128}, {x: 100, y: 400, r: 0, g: 0, b: 255}];
     dt = 0.02;
-    down = false;
+    shiftPressed = false;
+    selected = null;
 
     draw();
 }
