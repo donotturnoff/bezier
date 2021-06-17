@@ -4,8 +4,27 @@
  <head>
   <title>Bezier</title>
   <script src="bezier.js"></script>
+  <style>
+input {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 0;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0);
+}
+
+html, body, canvas {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+  </style>
  </head>
  <body>
-  <canvas width="800" height="800" id="cvs"></canvas>
+  <input type="color" value="#666666" id="picker" />
+  <canvas id="cvs"></canvas>
  </body>
 </html>
